@@ -1,0 +1,33 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: traffic-checker-sm
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: traffic-checker
+  endpoints:
+    - port: tcp-80
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: traffic-checker-pr
+  namespace: default
+spec:
+  groups:
+    - name: traffic-checker
+      rules:
+        - alert: DestinationDeploymentUnhealthy
+          expr: ingress_health == 0
+          for: 1m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Destination Deployment is unhealthy"
+            description: |
+              The Destination Deployment health check has failed for more than 1 minute.
+
+              Namespace: {{ $labels.namespace }}
+              Deployment: {{ $labels.name }}

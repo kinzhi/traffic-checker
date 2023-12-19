@@ -1,0 +1,92 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: traffic-checker
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: traffic-checker
+  template:
+    metadata:
+      labels:
+        app: traffic-checker
+    spec:
+      containers:
+        - name: container-1
+          image: ghcr.io/kinzhi/traffic-checker/traffic-checker:v1.2.3
+          env:
+            - name: HEALTH_CHECK_URL
+              value: http://alert-plugin.kube-system.svc.cluster.local/webhook
+            - name: INGRESS_DEPLOYMENT_NAME
+              value: a2048-dao-2048
+            - name: MONKEY_DEPLOYMENT_NAME
+              value: alert-plugin
+            - name: INGRESS_DEPLOYMENT_NAMESPACE
+              value: default
+            - name: MONKEY_DEPLOYMENT_NAMESPACE
+              value: kube-system
+            - name: TIMEOUT_SECONDS
+              value: "15"
+            - name: RESTART_INTERVAL
+              value: 4h
+            - name: RETRY_COUNT
+              value: "5"
+            - name: RETRY_INTERVAL
+              value: 30s
+            - name: ENABLE_HEALTH_CHECK
+              value: "true"
+            - name: ENABLE_HEALTH_CHECK_CLOSE
+              value: "false"
+            - name: ENABLE_RESTART
+              value: "true"
+          resources:
+            limits:
+              cpu: 250m
+              memory: 512Mi
+            requests:
+              cpu: 250m
+              memory: 512Mi
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            privileged: true
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      serviceAccountName: traffic-checker
+      serviceAccount: traffic-checker
+      tolerations:
+        - key: node.kubernetes.io/not-ready
+          operator: Exists
+          effect: NoExecute
+          tolerationSeconds: 300
+        - key: node.kubernetes.io/unreachable
+          operator: Exists
+          effect: NoExecute
+          tolerationSeconds: 300
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: traffic-checker
+  namespace: default
+spec:
+  ports:
+    - name: tcp-80
+      protocol: TCP
+      port: 80
+      targetPort: 8080
+      nodePort: 31080
+  selector:
+    app: traffic-checker
+  type: NodePort
+  sessionAffinity: None
+  externalTrafficPolicy: Cluster
+  ipFamilies:
+    - IPv4
+  ipFamilyPolicy: SingleStack
+  internalTrafficPolicy: Cluster
+status:
+  loadBalancer: {}

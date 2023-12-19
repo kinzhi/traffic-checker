@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: traffic-checker
+  namespace: default
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: traffic-checker-role
+rules:
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["get", "list", "update", "patch"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: traffic-checker-rolebinding
+  namespace: kube-system #如果涉及重启或停止多个NS下的Deployment，可以添加多个NS各添加一个RoleBinding。
+subjects:
+  - kind: ServiceAccount
+    name: traffic-checker
+    namespace: default
+roleRef:
+  kind: ClusterRole
+  name: traffic-checker-role
+  apiGroup: rbac.authorization.k8s.io
