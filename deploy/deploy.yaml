@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: container-1
-          image: ghcr.io/kinzhi/traffic-checker/traffic-checker:v1.2.3
+          image: ghcr.io/kinzhi/traffic-checker/traffic-checker:v1.1.0
           env:
             - name: HEALTH_CHECK_URL
               value: http://alert-plugin.kube-system.svc.cluster.local/webhook
