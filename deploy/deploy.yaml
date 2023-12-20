@@ -67,26 +67,28 @@ spec:
           tolerationSeconds: 300
 
 ---
-kind: Service
 apiVersion: v1
+kind: Service
 metadata:
+  creationTimestamp: "2023-12-15T08:35:46Z"
+  labels:
+    app: traffic-checker
   name: traffic-checker
   namespace: default
+  resourceVersion: "12578037"
+  uid: be2890fd-c6cf-46b0-a54c-784f97357e61
 spec:
-  ports:
-    - name: tcp-80
-      protocol: TCP
-      port: 80
-      targetPort: 8080
-      nodePort: 31080
-  selector:
-    app: traffic-checker
-  type: NodePort
-  sessionAffinity: None
   externalTrafficPolicy: Cluster
+  internalTrafficPolicy: Cluster
   ipFamilies:
     - IPv4
   ipFamilyPolicy: SingleStack
-  internalTrafficPolicy: Cluster
-status:
-  loadBalancer: {}
+  ports:
+    - name: tcp-80
+      nodePort: 31080
+      port: 80
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    app: traffic-checker
+  type: NodePort

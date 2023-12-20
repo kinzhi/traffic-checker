@@ -1,0 +1,5 @@
+{
+    "yaml.schemas": {
+        "https://json.schemastore.org/tmlanguage.json": "file:///Users/kinzhi/Documents/workspaces/traffic-checker/deploy/deploy.yaml"
+    }
+}

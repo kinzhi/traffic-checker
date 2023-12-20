@@ -1,14 +1,18 @@
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
+  annotations:
+  labels:
+    operator.insight.io/managed-by: insight
   name: traffic-checker-sm
   namespace: default
 spec:
+  endpoints:
+    - honorLabels: true
+      port: tcp-80
   selector:
     matchLabels:
       app: traffic-checker
-  endpoints:
-    - port: tcp-80
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
